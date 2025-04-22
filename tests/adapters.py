@@ -589,3 +589,5 @@ def run_train_bpe(
                 Merges are ordered by order of creation.
     """
     raise NotImplementedError
+
+
