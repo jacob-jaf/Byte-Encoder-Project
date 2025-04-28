@@ -141,10 +141,67 @@ class BPETokenizer:
         return string
 
 
+def merge_attempt(string: str, num_iter: int):
+    "Start by converting all strings into the int that represents which of 256 bytes they are"
+    indices_for_bytes = list(map(int, string.encode('utf-8')))
+    merges: dict[tuple[int, int], int] = {}
+    vocab: dict[int, bytes] = {x: bytes([x]) for x in range(256)}
+
+    for i in range(num_iter):
+        print(f'On merge number: {i}')
+        count_current = defaultdict(int)
+
+        for iter1,iter2 in zip(indices_for_bytes, indices_for_bytes[1:]):
+            count_current[(iter1, iter2)] += 1
+        #this returns the dictionary element with the highest key
+        max_count = max(count_current, key = count_current.get)
+        print(f'count_current: {count_current}')
+        print(f'max count: {max_count}')
+        max_first, max_second = max_count
+        idx_to_add = 256 + i
+        merges[max_count] = idx_to_add
+        vocab[idx_to_add] = vocab[max_first] + vocab[max_second]
+        #now want to replace instances of max_first, max_second with combined index
+        
+        indices_for_bytes = merge_insert(indices_for_bytes, max_first, max_second, idx_to_add)
+        print(f'Current merges: {merges}')
+    return (vocab, merges)
+                #check if we've hit the max
+
+def merge_insert(indices: list[int], first_comp: int, second_comp: int, new_idx: int):
+    new_indices = []
+    j = 0
+    while j <= (len(indices) - 1):
+        if j+1 < len(indices) and indices[j] == first_comp and indices[j+1] == second_comp:
+            new_indices.append(new_idx)
+            j+=2
+        else:
+            new_indices.append(indices[j])
+            j+=1
+    return new_indices
+
+def encode(string_to_encode: str, merges_previous: dict[tuple[int, int], int]) -> list[int]:
+    indices_bytes = list(map(int, string_to_encode.encode('utf-8')))
+    for items_merged, new_item in merges_previous.items():
+        indices_bytes = merge_insert(indices_bytes, items_merged[0], items_merged[1], new_item)
+    return indices_bytes
+
+def decode(vocab_previous: dict[int, bytes], indices: list[int]) -> str:
+    bytes_as_list = list(map(vocab_previous.get, indices))
+    bytes_regained = b"".join(bytes_as_list).decode('utf-8')
+    return bytes_regained
+
+
+
+ma1 = merge_attempt(example_text, 3)
+
 params = train_bpe(example_text, num_merges=3)
 tokenizer = BPETokenizer(params)
 tokenizer.encode(example_text)
 tokenizer.decode(tokenizer.encode(example_text))
+
+encode(example_text, ma1[1])
+decode(ma1[0], encode(example_text, ma1[1]))
 
 
 class BPE_example:
