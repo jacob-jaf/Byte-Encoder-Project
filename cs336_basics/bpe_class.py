@@ -36,5 +36,9 @@ class bpe_tokenizer:
 
         size_chunk = math.ceil(len(text_data) // available_threads)
 
+        index_boundaries = []
+
+        for i in range(available_threads):
+            current_end = (i + 1) * size_chunk
 
 

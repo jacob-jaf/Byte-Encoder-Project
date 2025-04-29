@@ -5,6 +5,7 @@ from abc import ABC
 from dataclasses import dataclass
 from collections import defaultdict
 import random
+import multiprocessing
 
 def find_chunk_boundaries(
     file: BinaryIO, 
@@ -55,7 +56,8 @@ def find_chunk_boundaries(
     return sorted(set(chunk_boundaries))
 
 ## Usage
-with open(..., "rb") as f:
+num_processes = multiprocessing.cpu_count()
+with open("data/TinyStoriesV2-GPT4-valid.txt", "rb") as f:
     boundaries = find_chunk_boundaries(
         f, num_processes, "<|endoftext|>".encode("utf-8"))
         
