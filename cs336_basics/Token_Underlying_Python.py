@@ -9,7 +9,7 @@ from itertools import chain
 import regex as re2
 
 @dataclass
-class RustTokenizer:
+class Token_Underlying:
     """
     A Python implementation of the Rust BPE tokenizer.
     This class provides similar functionality to the Rust implementation,
