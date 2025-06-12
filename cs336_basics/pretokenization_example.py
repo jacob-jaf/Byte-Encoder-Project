@@ -206,30 +206,3 @@ encode(example_text, ma1[1])
 decode(ma1[0], encode(example_text, ma1[1]))
 
 
-class BPE_example:
-    def __init__(self, vocab_size: int = 257):
-        self.vocab_size = vocab_size
-        self.vocab = {}
-        self.merges = []
-        self.token_to_id = {}
-        self.special_tokens = set() 
-    
-    def train(self, text: str, special_tokens: list[str] = None):
-        if special_tokens:
-            self.special_tokens = set(special_tokens)
-
-            for token in special_tokens:
-                self._add_token(token)
-
-        words = self._get_words(text)
-
-    def _get_words(self, text:str) -> List[str]:
-        words = text.findall(PAT, text)
-        return words
-    
-    def _add_token(self, token: bytes):
-
-        if token not in self.token_to_id:
-            token_to_id
-
-    def _intialize_vocab(self, words: List[str]):
