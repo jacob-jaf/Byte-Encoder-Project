@@ -1,5 +1,5 @@
-mod bpe_train;
-mod bpe;
+mod train_bpe_low;
+mod encode_low;
 mod utils;
 use std::collections::HashMap;
 use std::collections::HashSet;
