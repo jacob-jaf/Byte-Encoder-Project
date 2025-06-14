@@ -9,7 +9,7 @@ from itertools import chain
 import regex as re2
 
 @dataclass
-class Token_Underlying:
+class Tokenizer_Underlying:
     """
     A Python implementation of the Rust BPE tokenizer.
     This class provides similar functionality to the Rust implementation,
@@ -201,7 +201,7 @@ class Token_Underlying:
     
     @classmethod
     def from_files(cls, vocab_path: Path, merges_path: Path, 
-                   special_tokens: Optional[List[str]] = None) -> 'RustTokenizer':
+                   special_tokens: Optional[List[str]] = None) -> 'Tokenizer_Underlying':
         """
         Create a tokenizer from saved vocabulary and merges files.
         
@@ -211,7 +211,7 @@ class Token_Underlying:
             special_tokens: Optional list of special tokens
             
         Returns:
-            Initialized RustTokenizer instance
+            Initialized Tokenizer_Underlying instance
         """
         with open(vocab_path, 'rb') as f:
             vocab = pickle.load(f)

@@ -1,7 +1,7 @@
 [project]
-name = "cs336_basics"
+name = "byte_encoder_project"
 version = "1.0.3"
-description = "CS336 Assignment 1"
+description = "Implements BPE for transformer"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

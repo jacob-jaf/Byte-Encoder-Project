@@ -4,11 +4,18 @@ import multiprocessing
 import math
 from pathlib import Path
 from collections import Counter, defaultdict
+from cs336_basics.Token_Underlying_Python import Tokenizer_Underlying
+from cs336_basics.train_bpe_low import train_bpe
+import pickle
+from typing import Literal, Iterable, Iterator
+import numpy as np
+import regex as re
+
 
 
 
 @dataclass
-class bpe_tokenizer:
+class Tokenizer:
     #Reminder: When I use the @dataclass decorator, 
     #   I don't need to explicitly write an __init__ method, 
     #   one is automatically generated for me,
@@ -20,40 +27,45 @@ class bpe_tokenizer:
 
     vocab: dict[int, bytes]
     merges: list[tuple[bytes, bytes]]
-    token_underlined = Token_Underlying | None
+    token_underlined = Tokenizer_Underlying | None
 
     def __init__(self, vocab: dict[int, bytes], merges: list[tuple[bytes, bytes]], special_tokens: list[str] | None = None):
         self.vocab = vocab
         self.merges = merges
         if special_tokens is None: 
             special_tokens = []
-        self.token_underlined = Token_Underlying(vocab, merges, special_tokens)
+        self.token_underlined = Tokenizer_Underlying(vocab, merges, special_tokens)
 
     @classmethod 
-    def trainer(cls, text_data: bytes | str, v_size:int, special_tokens:list[str] | None = none):
+    def trainer(cls, text_data: bytes | str, v_size:int, special_tokens:list[str] | None = None):
         """
         This is for if we receive the text directly
         """
-        if isinstance(text_data, str):
-            text_data = text_data.encode("utf-8")
         if special_tokens is None:
             special_tokens = []
         start_time = time.perf_counter()
-        vocab, merges = bpe_trained_python(text_data, v_size, special_tokens)
+        print(type(text_data))
+        vocab, merges = train_bpe(text_data, v_size, special_tokens)
         end_time = time.perf_counter()
         print(f"Elapsed time training bpe: {end_time - start_time:.6f} seconds")
         return cls(vocab, merges, special_tokens)
     
     @classmethod
-    def files_trainer(cls, file_path_vocab: Path, file_path_merges: Path, special_token: list[str] | None = None):
+    def from_files(cls, file_path_vocab: Path, file_path_merges: Path, special_token: list[str] | None = None):
         """
         This alternate constructor is for when we use file paths for already trained vocab/merges
         """
         with open(file_path_vocab, 'rb') as f:
             text_vocab = pickle.load(f)
-        with open(file_path_merges 'rb') as f:
+        with open(file_path_merges, 'rb') as f:
             text_merges = pickle.load(f)
         return cls(vocab, merges, special_token)
+    
+    @classmethod
+    def train_from_data_file(cls, load_path: Path | str, vocab_size: int, special_tokens: list[str] | None = None):
+        with open(load_path, 'rb') as f:
+            text_4_train = f.read()
+        return cls.trainer(text_4_train, vocab_size, special_tokens)
     
     def encode(self, text: str | bytes) -> list[int]:
         if isinstance(text, str):
@@ -62,6 +74,10 @@ class bpe_tokenizer:
     
     def decode(self, tokens_list: list[int]) -> str:
         return self.token_underlined.decode(tokens_list)
+    
+    def encode_iterable(self, iterable: Iterable[str], as_list=True) -> Iterator[int] | Iterator[np.ndarray]:
+        for text in iterable:
+            yield from self.encode(text, as_list=as_list)
     
 
     
@@ -72,3 +88,7 @@ class bpe_tokenizer:
     
 
 #python implementations to add: bpe_trained_python
+
+owt_valid = Tokenizer.train_from_data_file(load_path='data/owt_valid.txt',
+                               vocab_size=32000,
+                               special_tokens=['<|endoftext|>'])

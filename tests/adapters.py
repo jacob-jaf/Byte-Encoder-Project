@@ -9,6 +9,8 @@ import numpy.typing as npt
 import torch
 from torch import Tensor
 
+from  cs336_basics.bpe_class import Tokenizer
+
 
 
 def run_linear(
@@ -29,6 +31,8 @@ def run_linear(
     Returns:
         Float[Tensor, "... d_out"]: The transformed output of your linear module.
     """
+
+    #to do this, we need a feedforward step
 
     raise NotImplementedError
 
@@ -558,7 +562,7 @@ def get_tokenizer(
     Returns:
         A BPE tokenizer that uses the provided vocab, merges, and special tokens.
     """
-    raise NotImplementedError
+    raise Tokenizer(vocab = vocab, merges = merges, special_tokens = special_tokens)
 
 
 def run_train_bpe(

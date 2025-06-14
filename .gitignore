@@ -162,3 +162,10 @@ cython_debug/
 #.ruff_cache/
 
 data/
+
+# Virtual Environment
+venv/
+env/
+.env/
+.venv/
+ENV/
