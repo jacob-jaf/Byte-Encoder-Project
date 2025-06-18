@@ -56,21 +56,32 @@ class Tokenizer:
         This alternate constructor is for when we use file paths for already trained vocab/merges
         """
         with open(file_path_vocab, 'rb') as f:
-            text_vocab = pickle.load(f)
+            vocab = pickle.load(f)
         with open(file_path_merges, 'rb') as f:
-            text_merges = pickle.load(f)
+            merges = pickle.load(f)
         return cls(vocab, merges, special_token)
     
     @classmethod
-    def train_from_data_file(cls, load_path: Path | str, vocab_size: int, special_tokens: list[str] | None = None):
+    def train_from_data_file(cls, load_path: Path | str, vocab_size: int, special_tokens: list[str] | None = None, bytes_to_read = -1):
         with open(load_path, 'rb') as f:
-            text_4_train = f.read()
+            text_4_train = f.read(bytes_to_read)
+            # Ensure we don't cut off in the middle of a UTF-8 character
+            try:
+                text_4_train.decode('utf-8')
+            except UnicodeDecodeError:
+                # If we hit a decode error, read until the last complete character
+                while True:
+                    try:
+                        text_4_train.decode('utf-8')
+                        break
+                    except UnicodeDecodeError:
+                        text_4_train = text_4_train[:-1]
         return cls.trainer(text_4_train, vocab_size, special_tokens)
     
     def encode(self, text: str | bytes) -> list[int]:
         if isinstance(text, str):
             text = text.encode('utf-8')
-        return self.token_underlined.encode().tolist()
+        return self.token_underlined.encode(text)
     
     def decode(self, tokens_list: list[int]) -> str:
         return self.token_underlined.decode(tokens_list)
@@ -87,8 +98,15 @@ class Tokenizer:
 
     
 
+
 #python implementations to add: bpe_trained_python
 
-owt_valid = Tokenizer.train_from_data_file(load_path='data/owt_valid.txt',
-                               vocab_size=32000,
-                               special_tokens=['<|endoftext|>'])
+if __name__ == '__main__':
+    #with open('data/owt_valid.txt', 'rb') as f:
+    #    text_4_train = f.read(2000)
+
+    owt_valid = Tokenizer.train_from_data_file(load_path='data/owt_valid.txt',
+                                   vocab_size=32000,
+                                   special_tokens=['<|endoftext|>'], 
+                                   bytes_to_read=2000)
+

@@ -17,7 +17,7 @@ def count_words(words: List[str]) -> List[Word]:
     word_counts = Counter(words)
     return [
         Word(
-            symbols=[ord(c) for c in word],
+            symbols=[b for b in word.encode('utf-8')],  # Convert to bytes first
             word_count=count
         )
         for word, count in word_counts.items()
@@ -115,9 +115,11 @@ def train_bpe(in_string: str | bytes, vocab_size: int, special_tokens: List[str]
     with tqdm(total=vocab_size - len(vocab), desc="Training BPE") as pbar:
         while len(vocab) < vocab_size and pair_counts:
             # Find most frequent pair
+            #print(f'pair_counts: {pair_counts}')
             best_pair = max(pair_counts.items(), key=lambda x: x[1])[0]
             
             # Create new token
+            #print(f'best_pair: {best_pair}')
             new_token = vocab[best_pair[0]] + vocab[best_pair[1]]
             new_token_id = len(vocab)
             vocab[new_token_id] = new_token
